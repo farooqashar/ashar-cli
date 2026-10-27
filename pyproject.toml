@@ -1,0 +1,29 @@
+[project]
+name = "ashar-cli"
+version = "0.1.0"
+description = "Ashar Farooq's personal command-line tool."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Ashar Farooq" }]
+dependencies = [
+    "typer>=0.12",
+    "rich>=13",
+]
+
+[project.urls]
+Homepage = "https://ashar.vercel.app"
+Repository = "https://github.com/farooqashar/ashar-cli"
+
+[project.scripts]
+ashar = "ashar_cli.main:app"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ashar_cli"]
