@@ -11,19 +11,19 @@ ashar --help
 
 | Command | What it does |
 |---|---|
-| `ashar commute` | Commute to work (`--home` for the trip back) |
-| `ashar trip boston` | Planning links for a trip (`--from` to change origin) |
+| `ashar commute` | Your commute with transit directions (`--home` flips it, `--open` opens the map) |
+| `ashar trip boston` | Planning links for a trip (`--from` to change origin, `--open` opens directions) |
 | `ashar about` | Who made this |
 | `ashar --version` | Version |
 
 ### Commute setup
 
-Personal settings stay on your machine, not in the package. Create `~/.config/ashar/config.toml`:
+Save your stations once (stored privately in `~/.config/ashar/config.toml`, never in the package):
 
-```toml
-[commute]
-from = "Huntington"
-to = "Penn Station"
+```bash
+ashar commute --from "Your station" --to "Penn Station" --save
+ashar commute          # uses the saved route
+ashar commute --home   # the trip back
 ```
 
 ## Development

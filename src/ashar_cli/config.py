@@ -1,11 +1,4 @@
-"""Local, private settings live in ~/.config/ashar/config.toml, never in the package.
-
-Example config.toml:
-
-    [commute]
-    from = "Huntington"
-    to = "Penn Station"
-"""
+"""Private settings live in ~/.config/ashar/config.toml, never in the package."""
 
 from __future__ import annotations
 
@@ -25,3 +18,23 @@ def load_config() -> dict:
         return {}
     with path.open("rb") as f:
         return tomllib.load(f)
+
+
+def _q(v: str) -> str:
+    return '"' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def save_section(section: str, values: dict[str, str]) -> Path:
+    """Merge string values into one [section] and rewrite the file."""
+    cfg = load_config()
+    cfg.setdefault(section, {}).update(values)
+    lines = []
+    for name, table in cfg.items():
+        if isinstance(table, dict):
+            lines.append(f"[{name}]")
+            lines += [f"{k} = {_q(v)}" for k, v in table.items()]
+            lines.append("")
+    path = config_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines))
+    return path

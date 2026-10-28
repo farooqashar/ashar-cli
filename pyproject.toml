@@ -1,6 +1,6 @@
 [project]
 name = "ashar-cli"
-version = "0.1.0"
+version = "0.1.1"
 description = "Ashar Farooq's personal command-line tool."
 readme = "README.md"
 requires-python = ">=3.11"
