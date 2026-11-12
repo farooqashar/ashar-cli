@@ -28,7 +28,10 @@ def save_section(section: str, values: dict[str, str]) -> Path:
     """Merge string values into one [section] and rewrite the file."""
     cfg = load_config()
     cfg.setdefault(section, {}).update(values)
-    lines = []
+    # Top-level scalars must come before any [table] header, or TOML nests them.
+    lines = [f"{k} = {_q(v)}" for k, v in cfg.items() if not isinstance(v, dict)]
+    if lines:
+        lines.append("")
     for name, table in cfg.items():
         if isinstance(table, dict):
             lines.append(f"[{name}]")
