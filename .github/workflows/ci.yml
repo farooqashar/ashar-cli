@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -16,4 +19,22 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python }}
-      - run: uv run pytest
+      - run: uv run pytest --cov-report=lcov:coverage.lcov
+      - name: Coveralls parallel
+        uses: coverallsapp/github-action@v2
+        with:
+          file: coverage.lcov
+          parallel: true
+          flag-name: python-${{ matrix.python }}
+          fail-on-error: false
+
+  coveralls-finish:
+    needs: test
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls finished
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel-finished: true
+          fail-on-error: false
