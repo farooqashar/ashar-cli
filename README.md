@@ -1,5 +1,7 @@
 # ashar-cli
 
+[![CI](https://github.com/farooqashar/ashar-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/farooqashar/ashar-cli/actions/workflows/ci.yml) [![Coverage Status](https://coveralls.io/repos/github/farooqashar/ashar-cli/badge.svg?branch=main)](https://coveralls.io/github/farooqashar/ashar-cli?branch=main)
+
 My personal command-line tool.
 
 ```bash
@@ -29,9 +31,13 @@ ashar commute --home   # the trip back
 ## Development
 
 ```bash
+uv sync
 uv run ashar --help
-uv run pytest
+uv run pytest            # tests + coverage table
+uv run pytest --cov-report=html && open htmlcov/index.html
 ```
+
+Tests must not touch the real config: use the `cfg` and `opened` fixtures in `tests/conftest.py`.
 
 ## Releasing
 
