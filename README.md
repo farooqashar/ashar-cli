@@ -37,6 +37,8 @@ uv run pytest            # tests + coverage table
 uv run pytest --cov-report=html && open htmlcov/index.html
 ```
 
+New code needs tests: CI fails if coverage drops below the 100% threshold (`fail_under` in `pyproject.toml`).
+
 Tests must not touch the real config: use the `cfg` and `opened` fixtures in `tests/conftest.py`.
 
 ## Releasing
