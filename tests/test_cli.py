@@ -70,6 +70,15 @@ def test_commute_save_reuse_and_flip(cfg):
     assert "Penn Station → Hicksville" in back.output
 
 
+def test_commute_malformed_config_is_one_line_error(cfg):
+    cfg.parent.mkdir(parents=True)
+    cfg.write_text("work office = 1\n")
+    result = runner.invoke(app, ["commute"])
+    assert result.exit_code == 1
+    assert str(cfg) in result.output
+    assert "Traceback" not in result.output
+
+
 def test_commute_open(cfg, opened):
     runner.invoke(app, ["commute", "-f", "A", "-t", "B", "--open"])
     assert opened and "travelmode=transit" in opened[0]

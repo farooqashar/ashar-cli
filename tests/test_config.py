@@ -1,6 +1,8 @@
 import tomllib
 from pathlib import Path
 
+import pytest
+
 from ashar_cli.config import config_path, load_config, save_section
 
 
@@ -37,3 +39,41 @@ def test_save_section_keeps_top_level_keys(cfg):
     cfg.write_text('name = "x"\n\n[commute]\nfrom = "A"\n')
     save_section("commute", {"to": "B"})
     assert load_config() == {"name": "x", "commute": {"from": "A", "to": "B"}}
+
+
+def test_save_section_keeps_types_nested_tables_and_quoted_keys(cfg):
+    cfg.parent.mkdir(parents=True)
+    cfg.write_text(
+        'theme = "dark"\n'
+        "retries = 3\n"
+        "debug = true\n"
+        "ratio = 0.5\n"
+        "tags = [1, \"two\", [false]]\n"
+        "since = 2024-01-02\n"
+        "[commute]\n"
+        'from = "Huntington"\n'
+        'to = "Penn Station"\n'
+        "[trip.defaults]\n"
+        'from = "Boston"\n'
+        "[trip.defaults.deep]\n"
+        "n = 1\n"
+        "[empty]\n"
+        "[aliases]\n"
+        '"work office" = "Penn Station"\n'
+        '"a.b" = { x = 1, "y z" = "w" }\n'
+        "[[stops]]\n"
+        'name = "Jamaica"\n'
+    )
+    before = tomllib.loads(cfg.read_text())
+    save_section("commute", {"from": "Hicksville"})
+    before["commute"]["from"] = "Hicksville"
+    assert tomllib.loads(cfg.read_text()) == before
+
+
+def test_load_config_malformed_file_exits_with_message(cfg):
+    cfg.parent.mkdir(parents=True)
+    cfg.write_text("work office = 1\n")
+    with pytest.raises(SystemExit) as exc:
+        load_config()
+    assert str(cfg) in str(exc.value.code)
+    assert "\n" not in str(exc.value.code)
