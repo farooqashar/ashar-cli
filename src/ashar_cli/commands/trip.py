@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import webbrowser
-from urllib.parse import quote_plus
+from urllib.parse import quote, quote_plus
 
 import typer
 from rich.console import Console
@@ -18,7 +18,7 @@ def trip_links(origin: str, dest: str) -> dict[str, str]:
         "Directions": f"https://www.google.com/maps/dir/?api=1&origin={o}&destination={d}",
         "Flights": f"https://www.google.com/travel/flights?q=flights+from+{o}+to+{d}",
         "Trains": "https://www.amtrak.com",
-        "Hotels": f"https://www.google.com/travel/hotels/{d}",
+        "Hotels": f"https://www.google.com/travel/hotels/{quote(dest, safe='')}",
         "Things to do": f"https://www.google.com/search?q=things+to+do+in+{d}",
         "Food": f"https://www.google.com/maps/search/best+restaurants+in+{d}",
     }
