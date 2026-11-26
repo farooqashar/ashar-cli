@@ -9,7 +9,7 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 
-from ashar_cli.config import config_path, load_config, save_section
+from ashar_cli.config import config_path, load_section, save_section
 
 console = Console()
 
@@ -22,7 +22,7 @@ def commute(
     open_: bool = typer.Option(False, "--open", "-o", help="Open directions in your browser."),
 ) -> None:
     """Show your commute, with transit directions."""
-    cfg = load_config().get("commute", {})
+    cfg = load_section("commute")
     origin, dest = frm or cfg.get("from"), to or cfg.get("to")
     if not origin or not dest:
         console.print(

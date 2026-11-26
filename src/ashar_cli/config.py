@@ -23,6 +23,16 @@ def load_config() -> dict:
             return tomllib.load(f)
         except tomllib.TOMLDecodeError as e:
             raise SystemExit(f"Error: {path} is not valid TOML ({e}). Fix or delete it.") from None
+        except UnicodeDecodeError as e:
+            raise SystemExit(f"Error: {path} is not UTF-8 ({e}). Fix or delete it.") from None
+
+
+def load_section(section: str, cfg: dict | None = None) -> dict:
+    """One [section] of the config, or {} if absent; never a non-table value."""
+    value = (load_config() if cfg is None else cfg).get(section, {})
+    if not isinstance(value, dict):
+        raise SystemExit(f"Error: [{section}] in {config_path()} must be a table.")
+    return value
 
 
 def _q(v: str) -> str:
@@ -63,10 +73,10 @@ def _table(header: list[str], table: dict, lines: list[str]) -> None:
 def save_section(section: str, values: dict[str, str]) -> Path:
     """Merge string values into one [section] and rewrite the file."""
     cfg = load_config()
-    cfg.setdefault(section, {}).update(values)
+    cfg[section] = {**load_section(section, cfg), **values}
     lines: list[str] = []
     _table([], cfg, lines)
     path = config_path()
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("\n".join(lines))
+    path.write_text("\n".join(lines), encoding="utf-8")
     return path
