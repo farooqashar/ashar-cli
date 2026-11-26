@@ -7,6 +7,7 @@ from urllib.parse import quote_plus
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 
 from ashar_cli.config import config_path, load_config, save_section
@@ -34,7 +35,7 @@ def commute(
 
     if save:
         save_section("commute", {"from": origin, "to": dest})
-        console.print(f"[green]Saved:[/green] {origin} → {dest}")
+        console.print(f"[green]Saved:[/green] {escape(origin)} → {escape(dest)}")
 
     if home:
         origin, dest = dest, origin
@@ -45,7 +46,7 @@ def commute(
     )
     console.print(
         Panel.fit(
-            f"[bold]{origin}[/bold] → [bold]{dest}[/bold]\n\n"
+            f"[bold]{escape(origin)}[/bold] → [bold]{escape(dest)}[/bold]\n\n"
             f"Directions: [cyan]{maps}[/cyan]\n"
             f"LIRR times: [cyan]https://traintime.mta.info[/cyan]",
             title="🚆 Commute",

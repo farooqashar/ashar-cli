@@ -39,3 +39,19 @@ def test_trip_multi_word_city_is_title_cased_and_encoded(opened):
     assert "New York → San Juan" in result.output
     assert "San+Juan" in result.output
     assert "destination=San+Juan" in opened[0]
+
+
+def test_trip_city_keeps_apostrophes_and_acronyms(opened):
+    result = runner.invoke(app, ["trip", "martha's vineyard"], terminal_width=200)
+    assert result.exit_code == 0, result.output
+    assert "New York → Martha's Vineyard" in result.output
+
+    result = runner.invoke(app, ["trip", "NYC"], terminal_width=200)
+    assert result.exit_code == 0, result.output
+    assert "New York → NYC" in result.output
+
+
+def test_trip_names_are_shown_literally_not_as_markup(opened):
+    result = runner.invoke(app, ["trip", "x [/]", "--from", "New York [penn]"], terminal_width=200)
+    assert result.exit_code == 0, result.output
+    assert "New York [penn] → X [/]" in result.output
