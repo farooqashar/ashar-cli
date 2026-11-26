@@ -7,6 +7,7 @@ import typer
 from ashar_cli import __version__
 from ashar_cli.commands.commute import commute
 from ashar_cli.commands.trip import trip
+from ashar_cli.config import load_config
 
 app = typer.Typer(
     help="Ashar Farooq's personal CLI.",
@@ -16,6 +17,22 @@ app = typer.Typer(
 
 app.command()(commute)
 app.command()(trip)
+
+
+@app.command()
+def tui() -> None:
+    """Commute and trip links in a small terminal UI."""
+    load_config()
+    try:
+        from ashar_cli.tui import AsharApp
+    except ImportError:
+        typer.echo(
+            'The TUI needs an extra: pip install "ashar-cli[tui]"'
+            ' (or: uv tool install "ashar-cli[tui]" / pipx install "ashar-cli[tui]")',
+            err=True,
+        )
+        raise typer.Exit(1) from None
+    AsharApp().run()
 
 
 @app.command()

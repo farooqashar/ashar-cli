@@ -13,6 +13,32 @@ from ashar_cli.config import config_path, load_config, save_section
 
 console = Console()
 
+TRAINTIME = "https://traintime.mta.info"
+
+
+def setup_hint() -> str:
+    return (
+        "[yellow]No commute set up yet.[/yellow] Save it once:\n\n"
+        '  [bold]ashar commute --from "Your station" --to "Penn Station" --save[/bold]\n\n'
+        f"(stored privately in {config_path()})"
+    )
+
+
+def resolve_route(frm: str | None, to: str | None, home: bool) -> tuple[str, str] | None:
+    """The route to show: explicit --from/--to, else the saved one, flipped for --home."""
+    cfg = load_config().get("commute", {})
+    origin, dest = frm or cfg.get("from"), to or cfg.get("to")
+    if not origin or not dest:
+        return None
+    return (dest, origin) if home else (origin, dest)
+
+
+def commute_link(origin: str, dest: str) -> str:
+    return (
+        "https://www.google.com/maps/dir/?api=1"
+        f"&origin={quote_plus(origin)}&destination={quote_plus(dest)}&travelmode=transit"
+    )
+
 
 def commute(
     frm: str = typer.Option(None, "--from", "-f", help="Where you start."),
@@ -22,15 +48,11 @@ def commute(
     open_: bool = typer.Option(False, "--open", "-o", help="Open directions in your browser."),
 ) -> None:
     """Show your commute, with transit directions."""
-    cfg = load_config().get("commute", {})
-    origin, dest = frm or cfg.get("from"), to or cfg.get("to")
-    if not origin or not dest:
-        console.print(
-            "[yellow]No commute set up yet.[/yellow] Save it once:\n\n"
-            '  [bold]ashar commute --from "Your station" --to "Penn Station" --save[/bold]\n\n'
-            f"(stored privately in {config_path()})"
-        )
+    route = resolve_route(frm, to, home=False)
+    if route is None:
+        console.print(setup_hint())
         raise typer.Exit(1)
+    origin, dest = route
 
     if save:
         save_section("commute", {"from": origin, "to": dest})
@@ -39,15 +61,12 @@ def commute(
     if home:
         origin, dest = dest, origin
 
-    maps = (
-        "https://www.google.com/maps/dir/?api=1"
-        f"&origin={quote_plus(origin)}&destination={quote_plus(dest)}&travelmode=transit"
-    )
+    maps = commute_link(origin, dest)
     console.print(
         Panel.fit(
             f"[bold]{origin}[/bold] → [bold]{dest}[/bold]\n\n"
             f"Directions: [cyan]{maps}[/cyan]\n"
-            f"LIRR times: [cyan]https://traintime.mta.info[/cyan]",
+            f"LIRR times: [cyan]{TRAINTIME}[/cyan]",
             title="🚆 Commute",
         )
     )

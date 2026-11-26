@@ -9,12 +9,15 @@ pip install ashar-cli      # or: uv tool install ashar-cli / pipx install ashar-
 ashar --help
 ```
 
+`ashar tui` needs an extra: `pip install "ashar-cli[tui]"` (or `uv tool install "ashar-cli[tui]"` / `pipx install "ashar-cli[tui]"`).
+
 ## Commands
 
 | Command | What it does |
 |---|---|
 | `ashar commute` | Your commute with transit directions (`--home` flips it, `--open` opens the map) |
 | `ashar trip boston` | Planning links for a trip (`--from` to change origin, `--open` opens directions) |
+| `ashar tui` | Commute and trip links in one terminal UI (`h` flips, `o` opens directions, Enter opens a trip link, `q` quits) |
 | `ashar about` | Who made this |
 | `ashar --version` | Version |
 
