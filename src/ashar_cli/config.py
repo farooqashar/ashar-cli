@@ -25,8 +25,14 @@ def load_config() -> dict:
             raise SystemExit(f"Error: {path} is not valid TOML ({e}). Fix or delete it.") from None
 
 
+# TOML basic strings forbid raw control characters, so escape them all.
+_ESCAPES = {c: f"\\u{c:04X}" for c in [*range(0x20), 0x7F]}
+_ESCAPES |= {ord("\\"): "\\\\", ord('"'): '\\"', ord("\b"): "\\b", ord("\t"): "\\t"}
+_ESCAPES |= {ord("\n"): "\\n", ord("\f"): "\\f", ord("\r"): "\\r"}
+
+
 def _q(v: str) -> str:
-    return '"' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '"'
+    return '"' + str(v).translate(_ESCAPES) + '"'
 
 
 def _key(k: str) -> str:

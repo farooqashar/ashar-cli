@@ -34,6 +34,17 @@ def test_save_section_round_trips_quotes_and_backslashes(cfg):
     assert tomllib.loads(cfg.read_text())["commute"]["from"] == tricky
 
 
+def test_save_section_round_trips_control_characters(cfg):
+    cfg.parent.mkdir(parents=True)
+    cfg.write_text('note = """line one\nline two"""\n[commute]\nfrom = "A"\n')
+    tricky = "a\rb\x7fc\x00d\te\bf\fg\x1fh\n"
+    save_section("commute", {"to": tricky})
+    assert tomllib.loads(cfg.read_text()) == {
+        "note": "line one\nline two",
+        "commute": {"from": "A", "to": tricky},
+    }
+
+
 def test_save_section_keeps_top_level_keys(cfg):
     cfg.parent.mkdir(parents=True)
     cfg.write_text('name = "x"\n\n[commute]\nfrom = "A"\n')
