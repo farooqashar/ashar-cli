@@ -12,6 +12,12 @@ def test_trip_links_has_every_link():
     assert all(url.startswith("https://") for url in links.values())
 
 
+def test_trip_hotels_link_uses_path_encoding():
+    links = trip_links("New York", "San Juan")
+    assert links["Hotels"] == "https://www.google.com/travel/hotels/San%20Juan"
+    assert "San+Juan" in links["Directions"]  # query strings keep +
+
+
 def test_trip_open(opened):
     result = runner.invoke(app, ["trip", "boston", "--open"], terminal_width=200)
     assert result.exit_code == 0, result.output
