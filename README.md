@@ -44,5 +44,5 @@ Tests must not touch the real config: use the `cfg` and `opened` fixtures in `te
 ## Releasing
 
 1. Bump `version` in `pyproject.toml`.
-2. Commit, then tag and push: `git tag v0.1.1 && git push --tags`.
-3. GitHub Actions runs the tests and publishes to PyPI.
+2. Commit, then tag and push that version: `git tag "v$(uv version --short)" && git push origin "v$(uv version --short)"`.
+3. GitHub Actions runs the tests and publishes to PyPI. The workflow refuses to publish when the tag isn't `v` plus the `pyproject.toml` version.
