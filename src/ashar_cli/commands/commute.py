@@ -7,9 +7,10 @@ from urllib.parse import quote_plus
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.panel import Panel
 
-from ashar_cli.config import config_path, load_config, save_section
+from ashar_cli.config import config_path, load_section, save_section
 
 console = Console()
 
@@ -26,7 +27,7 @@ def setup_hint() -> str:
 
 def resolve_route(frm: str | None, to: str | None, home: bool) -> tuple[str, str] | None:
     """The route to show: explicit --from/--to, else the saved one, flipped for --home."""
-    cfg = load_config().get("commute", {})
+    cfg = load_section("commute")
     origin, dest = frm or cfg.get("from"), to or cfg.get("to")
     if not origin or not dest:
         return None
@@ -56,7 +57,7 @@ def commute(
 
     if save:
         save_section("commute", {"from": origin, "to": dest})
-        console.print(f"[green]Saved:[/green] {origin} → {dest}")
+        console.print(f"[green]Saved:[/green] {escape(origin)} → {escape(dest)}")
 
     if home:
         origin, dest = dest, origin
@@ -64,7 +65,7 @@ def commute(
     maps = commute_link(origin, dest)
     console.print(
         Panel.fit(
-            f"[bold]{origin}[/bold] → [bold]{dest}[/bold]\n\n"
+            f"[bold]{escape(origin)}[/bold] → [bold]{escape(dest)}[/bold]\n\n"
             f"Directions: [cyan]{maps}[/cyan]\n"
             f"LIRR times: [cyan]{TRAINTIME}[/cyan]",
             title="🚆 Commute",

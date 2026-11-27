@@ -17,7 +17,7 @@ from ashar_cli.commands.commute import (
     resolve_route,
     setup_hint,
 )
-from ashar_cli.commands.trip import trip_links
+from ashar_cli.commands.trip import capitalize_words, trip_links
 
 
 class AsharApp(App):
@@ -76,7 +76,7 @@ class AsharApp(App):
         if not city:
             return
         origin = self.query_one("#origin", Input).value.strip() or "New York"
-        dest = city.title()
+        dest = capitalize_words(city)
         self.query_one("#trip-title", Static).update(Text(f"✈️  {origin} → {dest}", "bold"))
         links = self.query_one("#links", OptionList)
         links.clear_options()
