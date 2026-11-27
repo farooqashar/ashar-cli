@@ -1,3 +1,5 @@
+import subprocess
+import sys
 import tomllib
 from pathlib import Path
 
@@ -88,3 +90,31 @@ def test_load_config_malformed_file_exits_with_message(cfg):
         load_config()
     assert str(cfg) in str(exc.value.code)
     assert "\n" not in str(exc.value.code)
+
+
+def test_save_section_writes_utf8(cfg):
+    # Fails if any write falls back to the locale encoding, whatever this host's locale is.
+    script = 'from ashar_cli.config import save_section; save_section("commute", {"from": "Zürich HB", "to": "東京"})'
+    flags = ["-X", "warn_default_encoding", "-W", "error::EncodingWarning"]
+    subprocess.run([sys.executable, *flags, "-c", script], check=True)
+    text = cfg.read_bytes().decode("utf-8")
+    assert tomllib.loads(text)["commute"] == {"from": "Zürich HB", "to": "東京"}
+
+
+def test_load_config_non_utf8_file_exits_with_message(cfg):
+    cfg.parent.mkdir(parents=True)
+    cfg.write_bytes('[commute]\nfrom = "Café"\n'.encode("cp1252"))
+    with pytest.raises(SystemExit) as exc:
+        load_config()
+    assert str(cfg) in str(exc.value.code)
+    assert "UTF-8" in str(exc.value.code)
+    assert "\n" not in str(exc.value.code)
+
+
+def test_save_section_rejects_non_table_section(cfg):
+    cfg.parent.mkdir(parents=True)
+    cfg.write_text('commute = "Penn Station"\n')
+    with pytest.raises(SystemExit) as exc:
+        save_section("commute", {"from": "A", "to": "B"})
+    assert exc.value.code == f"Error: [commute] in {cfg} must be a table."
+    assert cfg.read_text() == 'commute = "Penn Station"\n'
