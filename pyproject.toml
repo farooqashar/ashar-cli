@@ -11,6 +11,9 @@ dependencies = [
     "rich>=13",
 ]
 
+[project.optional-dependencies]
+tui = ["textual>=8"]
+
 [project.urls]
 Homepage = "https://ashar.vercel.app"
 Repository = "https://github.com/farooqashar/ashar-cli"
@@ -22,6 +25,7 @@ ashar = "ashar_cli.main:app"
 dev = [
     "pytest>=8",
     "pytest-cov>=7.1.0",
+    "textual>=8",
 ]
 
 [build-system]
