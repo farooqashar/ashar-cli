@@ -82,3 +82,16 @@ def test_commute_malformed_config_is_one_line_error(cfg):
 def test_commute_open(cfg, opened):
     runner.invoke(app, ["commute", "-f", "A", "-t", "B", "--open"])
     assert opened and "travelmode=transit" in opened[0]
+
+
+def test_commute_names_are_shown_literally_not_as_markup(cfg):
+    result = runner.invoke(
+        app, ["commute", "--from", "Penn Station [lirr]", "--to", "B", "--save"], terminal_width=200
+    )
+    assert result.exit_code == 0, result.output
+    assert "Saved: Penn Station [lirr] → B" in result.output
+    assert "│ Penn Station [lirr] → B" in result.output
+
+    result = runner.invoke(app, ["commute", "--from", "A [/b]", "--to", "B"], terminal_width=200)
+    assert result.exit_code == 0, result.output
+    assert "A [/b] → B" in result.output
